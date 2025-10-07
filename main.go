@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -13,12 +13,12 @@ import (
 func handler(data []binanceconsumer.TickerData) {
 	for _, d := range data {
 		out := binanceconsumer.PrettyPrint(d)
-		fmt.Printf("%s\n", out)
+		log.Printf("Ticker Event\n%s\n", out)
 	}
 }
 
 func errHandler(err error) {
-	panic(err)
+	log.Fatal(err)
 }
 
 func main() {
@@ -31,12 +31,12 @@ func main() {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	consumer.SubscribeAll()
-	fmt.Println("Binance Consumer started. Press Ctrl+C to gracefully shutdown...")
+	log.Println("Binance Consumer started. Press Ctrl+C to gracefully shutdown...")
 
 	<-sigChan
 
 	if consumer.IsSubscribed() {
 		consumer.Unsubscribe()
-		fmt.Println("Successfully unsubscribed from Binance WebSocket")
+		log.Println("Successfully unsubscribed from Binance WebSocket")
 	}
 }
