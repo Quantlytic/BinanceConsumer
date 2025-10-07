@@ -10,7 +10,7 @@ import (
 // Config holds the application configuration
 type Config struct {
 	KafkaTopic    string
-	KafkaBrokers   string
+	KafkaBrokers  string
 	KafkaClientId string
 }
 
@@ -23,9 +23,9 @@ func Load() *Config {
 	}
 
 	return &Config{
-		KafkaBrokers:   getEnv("KAFKA_BROKERS", "localhost:9092"),
-		KafkaTopic:     getEnv("KAFKA_TOPIC", "stock-data-raw"),
-		KafkaClientId:  getEnv("KAFKA_CLIENT_ID", "binance-data"),
+		KafkaBrokers:  getEnv("KAFKA_BROKERS", "localhost:9092"),
+		KafkaTopic:    getEnv("KAFKA_TOPIC", "stock-data-raw"),
+		KafkaClientId: getEnv("KAFKA_CLIENT_ID", "binance-data"),
 	}
 }
 
