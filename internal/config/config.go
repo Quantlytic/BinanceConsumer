@@ -24,8 +24,8 @@ func Load() *Config {
 
 	return &Config{
 		KafkaBrokers:  getEnv("KAFKA_BROKERS", "localhost:9092"),
-		KafkaTopic:    getEnv("KAFKA_TOPIC", "stock-data-raw"),
-		KafkaClientId: getEnv("KAFKA_CLIENT_ID", "binance-data"),
+		KafkaTopic:    getEnv("KAFKA_TOPIC", "binance-ticker"),
+		KafkaClientId: getEnv("KAFKA_CLIENT_ID", "binance-publisher"),
 	}
 }
 
