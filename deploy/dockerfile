@@ -1,0 +1,45 @@
+ARG GO_VERSION=1.24.5
+
+FROM golang:${GO_VERSION}-bookworm AS builder
+
+WORKDIR /src
+
+ENV CGO_ENABLED=1 \
+	GOTOOLCHAIN=auto
+
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		build-essential \
+		librdkafka-dev \
+		ca-certificates \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . ./
+
+ARG TARGETOS=linux
+ARG TARGETARCH
+
+RUN set -eux; \
+	mkdir -p /out; \
+	GOOS_VALUE=${TARGETOS:-$(go env GOOS)}; \
+	GOARCH_VALUE=${TARGETARCH:-$(go env GOARCH)}; \
+	GOOS=$GOOS_VALUE GOARCH=$GOARCH_VALUE go build -o /out/binance-consumer .
+
+FROM debian:bookworm-slim AS runtime
+
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		ca-certificates \
+		librdkafka1 \
+	&& rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /out/binance-consumer /app/binance-consumer
+
+USER nobody:nogroup
+
+ENTRYPOINT ["/app/binance-consumer"]
