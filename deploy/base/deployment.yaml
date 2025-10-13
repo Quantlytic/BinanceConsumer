@@ -37,8 +37,6 @@ spec:
           periodSeconds: 30
           timeoutSeconds: 5
           failureThreshold: 3
-        # Graceful shutdown
-        terminationGracePeriodSeconds: 30
       restartPolicy: Always
       # Security context
       securityContext:

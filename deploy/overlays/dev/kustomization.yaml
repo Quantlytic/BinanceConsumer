@@ -14,7 +14,7 @@ patchesStrategicMerge:
 
 images:
   - name: binance-consumer
-    newTag: dev
+    newTag: local
 
 commonLabels:
   environment: dev
