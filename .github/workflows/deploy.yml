@@ -1,0 +1,35 @@
+name: Build, Publish, and Deploy
+on:
+  push:
+    branches:
+      - main
+      - 'release/**'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: [self-hosted, prod]
+    steps:
+      - name: Build Docker Image
+        uses: ./.github/actions/build-image
+        with:
+          image_name: binance-consumer
+          tag: ${{ github.sha }}
+  publish:
+    needs: build
+    runs-on: [self-hosted, prod]
+    steps:
+      - name: Publish Docker Image
+        uses: ./.github/actions/publish-image
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ github.repository_owner }}
+          image_name: binance-consumer
+          tag: ${{ github.sha }}
+  deploy:
+    needs: publish
+    runs-on: [self-hosted, prod]
+    steps:
+      - name: Deploy to Kubernetes
+        uses: ./.github/actions/deploy
+        with:
+          env: prod

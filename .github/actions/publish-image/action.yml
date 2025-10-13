@@ -1,0 +1,25 @@
+name: 'Publish Docker Image'
+description: 'Publishes the Docker image to GitHub Container Registry'
+runs:
+  using: 'composite'
+  steps:
+    - name: Log in to GitHub Container Registry
+      run: echo ${{ inputs.token }} | docker login ghcr.io -u ${{ inputs.username }} --password-stdin
+      shell: bash
+    - name: Push Docker image
+      run: |
+        docker push ghcr.io/${{ inputs.username }}/${{ inputs.image_name }}:${{ inputs.tag }}
+      shell: bash
+inputs:
+  token:
+    description: 'GitHub token for authentication'
+    required: true
+  username:
+    description: 'GitHub username'
+    required: true
+  image_name:
+    description: 'Name of the Docker image'
+    required: true
+  tag:
+    description: 'Tag for the Docker image'
+    required: true

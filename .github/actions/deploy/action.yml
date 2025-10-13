@@ -1,0 +1,17 @@
+name: 'Deploy to Kubernetes'
+description: 'Deploys the BinanceConsumer image using a self-hosted runner'
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    - name: Deploy to cluster
+      run: |
+        kubectl apply -k deploy/overlays/${{ inputs.env }}
+      shell: bash
+inputs:
+  env:
+    description: 'Deployment environment (dev/prod)'
+    required: true
