@@ -19,14 +19,10 @@ RUN go mod download
 
 COPY . ./
 
-ARG TARGETOS=linux
-ARG TARGETARCH
-
+# Build for the native architecture of the builder image
 RUN set -eux; \
 	mkdir -p /out; \
-	GOOS_VALUE=${TARGETOS:-$(go env GOOS)}; \
-	GOARCH_VALUE=${TARGETARCH:-$(go env GOARCH)}; \
-	GOOS=$GOOS_VALUE GOARCH=$GOARCH_VALUE go build -o /out/binance-consumer .
+	go build -o /out/binance-consumer .
 
 FROM debian:bookworm-slim AS runtime
 
