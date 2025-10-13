@@ -17,11 +17,11 @@ func errHandler(err error) {
 }
 
 func main() {
-	config.Load()
+	cfg := config.Load()
 
 	p, err := kafkaproducer.NewKafkaProducer(kafkaproducer.KafkaProducerConfig{
-		Servers:  "localhost:9092",
-		ClientId: "binance-data",
+		Servers:  cfg.KafkaBrokers,
+		ClientId: cfg.KafkaClientId,
 		Acks:     "all",
 	})
 	if err != nil {
@@ -51,7 +51,7 @@ func main() {
 			log.Printf("Ticker Event\n%s\n", out)
 
 			// Send to Kafka
-			produceToKafka("binance-ticker", d.Symbol, d)
+			produceToKafka(cfg.KafkaTopic, d.Symbol, d)
 		}
 	}
 
