@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: binance-consumer-config
-data:
-  KAFKA_BROKERS: "kafka:9092"
-  KAFKA_TOPIC: "binance-ticker"
-  KAFKA_CLIENT_ID: "binance-consumer"

@@ -1,0 +1,11 @@
+# This file serves as an example of the ConfigMap structure.
+# The actual ConfigMap is created dynamically during deployment using GitHub repository secrets.
+# See docs/SECRETS.md for more information.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: binance-consumer-config
+data:
+  KAFKA_BROKERS: "kafka:9092"
+  KAFKA_TOPIC: "binance-ticker"
+  KAFKA_CLIENT_ID: "binance-consumer"

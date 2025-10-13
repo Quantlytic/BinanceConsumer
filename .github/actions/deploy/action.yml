@@ -5,6 +5,15 @@ runs:
   steps:
     - name: Checkout code
       uses: actions/checkout@v4
+    - name: Create ConfigMap from secrets
+      run: |
+        kubectl create configmap binance-consumer-config \
+          --from-literal=KAFKA_BROKERS="${{ inputs.kafka_brokers }}" \
+          --from-literal=KAFKA_TOPIC="${{ inputs.kafka_topic }}" \
+          --from-literal=KAFKA_CLIENT_ID="${{ inputs.kafka_client_id }}" \
+          -n ${{ inputs.namespace }} \
+          --dry-run=client -o yaml | kubectl apply -f -
+      shell: bash
     - name: Apply kustomize overlay
       run: |
         kubectl apply -k deploy/overlays/${{ inputs.env }}
@@ -13,6 +22,10 @@ runs:
       if: ${{ inputs.image_repo && inputs.tag && inputs.namespace }}
       run: |
         kubectl -n ${{ inputs.namespace }} set image deployment/binance-consumer ${{ inputs.container_name }}=${{ inputs.image_repo }}:${{ inputs.tag }}
+      shell: bash
+    - name: Restart deployment to pick up ConfigMap changes
+      run: |
+        kubectl -n ${{ inputs.namespace }} rollout restart deployment/binance-consumer
       shell: bash
 inputs:
   env:
@@ -31,3 +44,12 @@ inputs:
     description: 'Container name in the deployment spec'
     default: 'binance-consumer'
     required: false
+  kafka_brokers:
+    description: 'Kafka brokers connection string'
+    required: true
+  kafka_topic:
+    description: 'Kafka topic name'
+    required: true
+  kafka_client_id:
+    description: 'Kafka client ID'
+    required: true

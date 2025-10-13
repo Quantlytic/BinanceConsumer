@@ -46,3 +46,6 @@ jobs:
           namespace: quantlytic-prod
           image_repo: ${{ needs.build_and_publish.outputs.image_repo }}
           tag: ${{ github.sha }}
+          kafka_brokers: ${{ secrets.KAFKA_BROKERS }}
+          kafka_topic: ${{ secrets.KAFKA_TOPIC }}
+          kafka_client_id: ${{ secrets.KAFKA_CLIENT_ID }}
