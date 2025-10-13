@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+metadata:
+  name: binance-consumer-prod
+
+namespace: quantlytic-prod
+
+resources:
+  - ../../base
+
+patchesStrategicMerge:
+  - deployment-patch.yaml
+
+images:
+  - name: binance-consumer
+    newName: ghcr.io/Quantlytic/binance-consumer
+    newTag: stable
+
+commonLabels:
+  environment: prod
