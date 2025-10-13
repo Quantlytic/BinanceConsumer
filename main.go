@@ -17,6 +17,8 @@ func errHandler(err error) {
 }
 
 func main() {
+	log.Printf("KAFKA_BROKERS env: %s", os.Getenv("KAFKA_BROKERS"))
+
 	cfg := config.Load()
 
 	p, err := kafkaproducer.NewKafkaProducer(kafkaproducer.KafkaProducerConfig{
