@@ -21,6 +21,8 @@ func main() {
 
 	cfg := config.Load()
 
+	log.Printf("KAFKA_BROKERS config: %s", cfg.KafkaBrokers)
+
 	p, err := kafkaproducer.NewKafkaProducer(kafkaproducer.KafkaProducerConfig{
 		Servers:  cfg.KafkaBrokers,
 		ClientId: cfg.KafkaClientId,
