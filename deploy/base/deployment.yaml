@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: binance-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: binance-consumer
+  template:
+    metadata:
+      labels:
+        app: binance-consumer
+    spec:
+      containers:
+      - name: binance-consumer
+        image: binance-consumer:latest
+        imagePullPolicy: IfNotPresent
+        envFrom:
+        - configMapRef:
+            name: binance-consumer-config
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        # Health checks
+        livenessProbe:
+          exec:
+            command:
+            - /bin/sh
+            - -c
+            - "pgrep -f binance-consumer"
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+        # Graceful shutdown
+        terminationGracePeriodSeconds: 30
+      restartPolicy: Always
+      # Security context
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534  # nobody user
+        runAsGroup: 65534 # nogroup
+        fsGroup: 65534
