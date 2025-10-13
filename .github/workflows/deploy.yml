@@ -10,6 +10,8 @@ permissions:
   packages: write
 jobs:
   build_and_publish:
+    outputs:
+      image_repo: ${{ steps.image_meta.outputs.image_repo }}
     runs-on: [self-hosted, prod]
     steps:
       - name: Checkout
@@ -26,6 +28,10 @@ jobs:
           IMAGE_REPO=$(echo "$IMAGE_REPO_UPPER" | tr '[:upper:]' '[:lower:]')
           docker build -f deploy/dockerfile -t "$IMAGE_REPO":${{ github.sha }} .
           echo "IMAGE_REPO=$IMAGE_REPO" >> $GITHUB_ENV
+      - name: Export image repo output
+        id: image_meta
+        run: |
+          echo "image_repo=$IMAGE_REPO" >> $GITHUB_OUTPUT
       - name: Push image
         run: |
           docker push "$IMAGE_REPO":${{ github.sha }}
@@ -38,5 +44,5 @@ jobs:
         with:
           env: prod
           namespace: quantlytic-prod
-          image_repo: ${{ env.IMAGE_REPO }}
+          image_repo: ${{ needs.build_and_publish.outputs.image_repo }}
           tag: ${{ github.sha }}

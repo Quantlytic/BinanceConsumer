@@ -14,8 +14,8 @@ patchesStrategicMerge:
 
 images:
   - name: binance-consumer
-    newName: ghcr.io/Quantlytic/binance-consumer
-    newTag: stable
+    newName: ghcr.io/quantlytic/binance-consumer
+    newTag: latest
 
 commonLabels:
   environment: prod
