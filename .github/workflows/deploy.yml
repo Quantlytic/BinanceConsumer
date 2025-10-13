@@ -5,31 +5,38 @@ on:
       - main
       - 'release/**'
   workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
 jobs:
-  build:
+  build_and_publish:
     runs-on: [self-hosted, prod]
     steps:
-      - name: Build Docker Image
-        uses: ./.github/actions/build-image
-        with:
-          image_name: binance-consumer
-          tag: ${{ github.sha }}
-  publish:
-    needs: build
-    runs-on: [self-hosted, prod]
-    steps:
-      - name: Publish Docker Image
-        uses: ./.github/actions/publish-image
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          username: ${{ github.repository_owner }}
-          image_name: binance-consumer
-          tag: ${{ github.sha }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to GHCR
+        env:
+          CR_USER: ${{ github.repository_owner }}
+          CR_PAT: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "$CR_PAT" | docker login ghcr.io -u "$CR_USER" --password-stdin
+      - name: Build image
+        env:
+          IMAGE_REPO_UPPER: ghcr.io/${{ github.repository_owner }}/binance-consumer
+        run: |
+          IMAGE_REPO=$(echo "$IMAGE_REPO_UPPER" | tr '[:upper:]' '[:lower:]')
+          docker build -f deploy/dockerfile -t "$IMAGE_REPO":${{ github.sha }} .
+          echo "IMAGE_REPO=$IMAGE_REPO" >> $GITHUB_ENV
+      - name: Push image
+        run: |
+          docker push "$IMAGE_REPO":${{ github.sha }}
   deploy:
-    needs: publish
+    needs: build_and_publish
     runs-on: [self-hosted, prod]
     steps:
-      - name: Deploy to Kubernetes
+      - name: Deploy to Kubernetes (prod)
         uses: ./.github/actions/deploy
         with:
           env: prod
+          namespace: quantlytic-prod
+          image_repo: ${{ env.IMAGE_REPO }}
+          tag: ${{ github.sha }}

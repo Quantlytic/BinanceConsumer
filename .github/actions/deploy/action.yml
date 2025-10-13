@@ -3,15 +3,31 @@ description: 'Deploys the BinanceConsumer image using a self-hosted runner'
 runs:
   using: 'composite'
   steps:
-    - name: Set up kubectl
-      uses: azure/setup-kubectl@v3
-      with:
-        version: 'latest'
-    - name: Deploy to cluster
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Apply kustomize overlay
       run: |
         kubectl apply -k deploy/overlays/${{ inputs.env }}
+      shell: bash
+    - name: Set deployment image
+      if: ${{ inputs.image_repo && inputs.tag && inputs.namespace }}
+      run: |
+        kubectl -n ${{ inputs.namespace }} set image deployment/binance-consumer ${{ inputs.container_name }}=${{ inputs.image_repo }}:${{ inputs.tag }}
       shell: bash
 inputs:
   env:
     description: 'Deployment environment (dev/prod)'
     required: true
+  namespace:
+    description: 'Kubernetes namespace to deploy into'
+    required: true
+  image_repo:
+    description: 'Full image repository (e.g., ghcr.io/Quantlytic/binance-consumer)'
+    required: false
+  tag:
+    description: 'Image tag to deploy (e.g., commit SHA)'
+    required: false
+  container_name:
+    description: 'Container name in the deployment spec'
+    default: 'binance-consumer'
+    required: false
